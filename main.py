@@ -1,6 +1,6 @@
 from mesh.facemesh import FaceMesh
 from mesh.tetmesh import TetMesh
-from mesh.utils.mesh_writer import write_mesh
+from utils.mesh_writer import write_mesh
 
 
 def main():
