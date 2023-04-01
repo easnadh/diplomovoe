@@ -5,6 +5,7 @@ from mesh.triangle3d import Triangle3D
 
 
 class Tetrahedron:
+    __slots__ = ('points',)
     points: list[Point3D]
 
     def __init__(self, *points: Point3D):
