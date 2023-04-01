@@ -5,6 +5,7 @@ from mesh.triangle3d import Triangle3D
 
 
 class FaceMesh:
+    __slots__ = ('triangles',)
     triangles: list[Triangle3D]
 
     @classmethod
@@ -47,14 +48,11 @@ class FaceMesh:
             list(map(lambda x: points.index(x) + 1, triangle.points))
             for triangle in self.triangles
         ]
-        return (f'FaceMesh(\n' \
-               f'Уникальных точек: {len(points)}\n'
-               f'Точки:\n'
-               f'{chr(10).join(map(repr, points))}\n'
-               f'Треугольники:\n' +
+        return (f'FaceMesh(\n'
+                f'Уникальных точек: {len(points)}\n'
+                f'Точки:\n'
+                f'{chr(10).join(map(repr, points))}\n'
+                f'Треугольники:\n' +
                 chr(10).join(map(lambda x: f"Треугольник ({', '.join(map(str, x))})", triangles_with_numbers)) +
                 f'\n)')
 
-mesh = FaceMesh.from_file('kube.vol')
-
-print(mesh)

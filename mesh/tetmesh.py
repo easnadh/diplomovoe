@@ -5,6 +5,7 @@ from mesh.tetrahedron import Tetrahedron
 
 
 class TetMesh:
+    __slots__ = ('tetrahedrons',)
     tetrahedrons: list[Tetrahedron]
 
     # bound_tet: list[int]
@@ -57,4 +58,3 @@ class TetMesh:
                 f'Тетраэдры:\n' +
                 chr(10).join(map(lambda x: f"Тетраэдр ({', '.join(map(str, x))})", tetrahedrons_with_numbers)) +
                 f'\n)')
-
