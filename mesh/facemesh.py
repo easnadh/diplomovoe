@@ -1,5 +1,6 @@
 from itertools import chain
 
+from exceptions.file_errors import FileFormatError, FileStructureError
 from mesh.point3d import Point3D
 from mesh.triangle3d import Triangle3D
 
@@ -14,26 +15,30 @@ class FaceMesh:
             lines = f.readlines()
 
         if path.lower().endswith('.vol'):
-            points_numbers, points = cls.from_vol(lines)
+            try:
+                points_numbers, points = cls.from_vol(lines)
 
-            del lines
+                del lines
 
-            face_mesh = cls()
-            face_mesh.triangles = []
-            for n1, n2, n3 in points_numbers:
-                face_mesh.triangles.append(
-                    Triangle3D(
-                        Point3D(*points[n1 - 1]),
-                        Point3D(*points[n2 - 1]),
-                        Point3D(*points[n3 - 1])
+                face_mesh = cls()
+                face_mesh.triangles = []
+                for n1, n2, n3 in points_numbers:
+                    face_mesh.triangles.append(
+                        Triangle3D(
+                            Point3D(*points[n1 - 1]),
+                            Point3D(*points[n2 - 1]),
+                            Point3D(*points[n3 - 1])
+                        )
                     )
-                )
-            return face_mesh
+                return face_mesh
+
+            except:
+                raise FileStructureError(path)
 
         elif path.lower().endswith('.dat'):
             pass
         else:
-            print('file format error')
+            raise FileFormatError(path)
 
     @staticmethod
     def from_vol(lines):

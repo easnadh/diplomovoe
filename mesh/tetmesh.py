@@ -1,5 +1,6 @@
 from itertools import chain
 
+from exceptions.file_errors import FileFormatError, FileStructureError
 from mesh.point3d import Point3D
 from mesh.tetrahedron import Tetrahedron
 
@@ -16,11 +17,17 @@ class TetMesh:
             lines = f.readlines()
 
         if path.lower().endswith('.vol'):
-            points_numbers, points = cls.from_vol(lines)
+            try:
+                points_numbers, points = cls.from_vol(lines)
+            except:
+                raise FileStructureError(path)
         elif path.lower().endswith('.dat'):
-            points_numbers, points = cls.from_dat(lines)
+            try:
+                points_numbers, points = cls.from_dat(lines)
+            except:
+                raise FileStructureError(path)
         else:
-            print('file format error')
+            raise FileFormatError(path)
 
         del lines
 
