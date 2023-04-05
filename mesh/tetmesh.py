@@ -11,21 +11,16 @@ class TetMesh:
     # bound_tet: list[int]
 
     @classmethod
-    def from_file(cls, path: str):
+    def read_from_file(cls, path: str):
         with open(path) as f:
             lines = f.readlines()
 
-        points_numbers_start = lines.index('volumeelements\n') + 1
-        points_numbers = [
-            tuple(map(int, i.split()[~3:])) for i in
-            lines[points_numbers_start + 1: points_numbers_start + int(lines[points_numbers_start]) + 1]
-        ]
-
-        points_start = lines.index('points\n') + 1
-        points = [
-            tuple(map(float, line.split())) for line in
-            lines[points_start + 1: points_start + int(lines[points_start]) + 1]
-        ]
+        if path.lower().endswith('.vol'):
+            points_numbers, points = cls.from_vol(lines)
+        elif path.lower().endswith('.dat'):
+            points_numbers, points = cls.from_dat(lines)
+        else:
+            print('file format error')
 
         del lines
 
@@ -41,6 +36,38 @@ class TetMesh:
                 )
             )
         return tet_mesh
+
+    @staticmethod
+    def from_vol(lines):
+        points_numbers_start = lines.index('volumeelements\n') + 1
+        points_numbers = [
+            tuple(map(int, i.split()[~3:])) for i in
+            lines[points_numbers_start + 1: points_numbers_start + int(lines[points_numbers_start]) + 1]
+        ]
+
+        points_start = lines.index('points\n') + 1
+        points = [
+            tuple(map(float, line.split())) for line in
+            lines[points_start + 1: points_start + int(lines[points_start]) + 1]
+        ]
+
+        return points_numbers, points
+
+    @staticmethod
+    def from_dat(lines):
+        points_start = int(lines[0])
+        points = [
+            tuple(map(float, line.split())) for line in
+            lines[1: points_start + 1]
+        ]
+
+        points_numbers_start = int(lines[points_start + 2])
+        points_numbers = [
+            tuple(map(int, i.split())) for i in
+            lines[points_start + 3: points_start + 3 + points_numbers_start]
+        ]
+
+        return points_numbers, points
 
     def __str__(self):
         points = list(set(chain(

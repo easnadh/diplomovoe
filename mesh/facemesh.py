@@ -9,10 +9,34 @@ class FaceMesh:
     triangles: list[Triangle3D]
 
     @classmethod
-    def from_file(cls, path: str):
+    def read_from_file(cls, path: str):
         with open(path) as f:
             lines = f.readlines()
 
+        if path.lower().endswith('.vol'):
+            points_numbers, points = cls.from_vol(lines)
+
+            del lines
+
+            face_mesh = cls()
+            face_mesh.triangles = []
+            for n1, n2, n3 in points_numbers:
+                face_mesh.triangles.append(
+                    Triangle3D(
+                        Point3D(*points[n1 - 1]),
+                        Point3D(*points[n2 - 1]),
+                        Point3D(*points[n3 - 1])
+                    )
+                )
+            return face_mesh
+
+        elif path.lower().endswith('.dat'):
+            pass
+        else:
+            print('file format error')
+
+    @staticmethod
+    def from_vol(lines):
         points_numbers_start = lines.index('surfaceelements\n') + 1
         points_numbers = [
             tuple(map(int, i.split()[~2:])) for i in
@@ -25,19 +49,7 @@ class FaceMesh:
             lines[points_start + 1: points_start + int(lines[points_start]) + 1]
         ]
 
-        del lines
-
-        face_mesh = cls()
-        face_mesh.triangles = []
-        for n1, n2, n3 in points_numbers:
-            face_mesh.triangles.append(
-                Triangle3D(
-                    Point3D(*points[n1 - 1]),
-                    Point3D(*points[n2 - 1]),
-                    Point3D(*points[n3 - 1])
-                )
-            )
-        return face_mesh
+        return points_numbers, points
 
     def __str__(self):
         points = list(set(chain(
@@ -55,4 +67,3 @@ class FaceMesh:
                 f'Треугольники:\n' +
                 chr(10).join(map(lambda x: f"Треугольник ({', '.join(map(str, x))})", triangles_with_numbers)) +
                 f'\n)')
-
