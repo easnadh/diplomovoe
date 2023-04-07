@@ -1,6 +1,6 @@
 from itertools import chain
 
-from exceptions.file_errors import FileFormatError, FileStructureError
+from exceptions.file_errors import FileExtensionError, FileStructureError
 from mesh.point3d import Point3D
 from mesh.tetrahedron import Tetrahedron
 
@@ -27,7 +27,7 @@ class TetMesh:
             except:
                 raise FileStructureError(path)
         else:
-            raise FileFormatError(path)
+            raise FileExtensionError(path)
 
         del lines
 

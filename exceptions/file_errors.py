@@ -1,7 +1,7 @@
-class FileFormatError(Exception):
+class FileExtensionError(Exception):
     def __init__(self, path):
         self.path = path
-        self.message = 'Неверный формат файла'
+        self.message = 'Неверное расширение файла'
         super().__init__(self.message)
 
     def __str__(self):
@@ -16,13 +16,3 @@ class FileStructureError(Exception):
 
     def __str__(self):
         return f'{self.message} {self.path}. Блоки данных не соответствуют ожидаемым'
-
-
-class FileWriteError(Exception):
-    def __init__(self, path):
-        self.path = path
-        self.message = 'Ошибка записи в файл'
-        super().__init__(self.message)
-
-    def __str__(self):
-        return f'{self.message} {self.path}. Facemesh и Tetmesh is None'

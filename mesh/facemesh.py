@@ -1,6 +1,6 @@
 from itertools import chain
 
-from exceptions.file_errors import FileFormatError, FileStructureError
+from exceptions.file_errors import FileExtensionError, FileStructureError
 from mesh.point3d import Point3D
 from mesh.triangle3d import Triangle3D
 
@@ -38,7 +38,7 @@ class FaceMesh:
         elif path.lower().endswith('.dat'):
             pass
         else:
-            raise FileFormatError(path)
+            raise FileExtensionError(path)
 
     @staticmethod
     def from_vol(lines):
