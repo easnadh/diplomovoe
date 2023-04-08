@@ -1,12 +1,13 @@
 from mesh.facemesh import FaceMesh
 from mesh.tetmesh import TetMesh
-from utils.mesh_writer import write_mesh
+from utils.mesh_writer import write_mesh_to_file
 
 
 def main():
-    tetmesh = TetMesh.read_from_file('cube.dat')
-    facemesh = FaceMesh.read_from_file('cube.dat')
-    write_mesh("out.vol", facemesh, tetmesh)
+    file = 'cube.vol'
+    facemesh = FaceMesh.read_from_file(file)
+    tetmesh = TetMesh.read_from_file(file)
+    write_mesh_to_file('out.vol', facemesh, tetmesh)
 
 
 if __name__ == '__main__':

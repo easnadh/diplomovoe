@@ -2,7 +2,7 @@ from mesh.facemesh import FaceMesh
 from mesh.tetmesh import TetMesh
 
 
-def write_mesh(file_name: str, face_mesh: FaceMesh = None, tet_mesh: TetMesh = None):
+def write_mesh_to_file(file_name: str, face_mesh: FaceMesh = None, tet_mesh: TetMesh = None):
     points = set()
 
     if face_mesh is not None:
@@ -12,6 +12,9 @@ def write_mesh(file_name: str, face_mesh: FaceMesh = None, tet_mesh: TetMesh = N
     if tet_mesh is not None:
         for tetrahedron in tet_mesh.tetrahedrons:
             points.update({*tetrahedron.points})
+
+    if face_mesh is None and tet_mesh is None:
+        raise ValueError(f'Ошибка записи в файл. Хотя бы одна сетка должна быть передана.')
 
     points = tuple(points)
 
