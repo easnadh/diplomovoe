@@ -7,7 +7,7 @@ def main():
     tetmesh1 = TetMesh.read_from_file('kube.vol')
     tetmesh2 = TetMesh.read_from_file('kube1.vol')
 
-    tetmesh1.intersection(tetmesh2, 'int.vol')
+    tetmesh1.difference(tetmesh2, 'int.vol')
 
 
 if __name__ == '__main__':

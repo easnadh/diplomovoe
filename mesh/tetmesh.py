@@ -76,7 +76,7 @@ class TetMesh:
 
         return points_numbers, points
 
-    def intersection(self, other, path: str):
+    def difference(self, other, path: str):
         points1: set[Point3D] = set(chain(*map(lambda x: x.points, self.tetrahedrons)))
         points2: set[Point3D] = set(chain(*map(lambda x: x.points, other.tetrahedrons)))
 
