@@ -76,9 +76,9 @@ class TetMesh:
 
         return points_numbers, points
 
-    def intersection(self, other: TetMesh, path: str):
-        points1: set[Point3D] = set(*chain(lambda x: x.points, self.tetrahedrons))
-        points2: set[Point3D] = set(*chain(lambda x: x.points, other.tetrahedrons))
+    def intersection(self, other, path: str):
+        points1: set[Point3D] = set(chain(*map(lambda x: x.points, self.tetrahedrons)))
+        points2: set[Point3D] = set(chain(*map(lambda x: x.points, other.tetrahedrons)))
 
         in_p1_and_not_in_p2 = points1 - points2
         in_p2_and_not_in_p1 = points2 - points1
