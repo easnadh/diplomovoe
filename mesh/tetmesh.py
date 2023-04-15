@@ -76,6 +76,27 @@ class TetMesh:
 
         return points_numbers, points
 
+    def difference(self, other, path: str):
+        points1: set[Point3D] = set(chain(*map(lambda x: x.points, self.tetrahedrons)))
+        points2: set[Point3D] = set(chain(*map(lambda x: x.points, other.tetrahedrons)))
+
+        in_p1_and_not_in_p2 = points1 - points2
+        in_p2_and_not_in_p1 = points2 - points1
+
+        # return {
+        #     'common': tuple(common_points),
+        #     'only_1': tuple(in_p1_and_not_in_p2),
+        #     'only_2': tuple(in_p2_and_not_in_p1)
+        # }
+
+        open(path, 'w').close()
+        with open(path, 'a') as file:
+            for p in in_p1_and_not_in_p2:
+                file.write(f'{p.x} {p.y} {p.z}\n')
+            file.write('\n')
+            for p in in_p2_and_not_in_p1:
+                file.write(f'{p.x} {p.y} {p.z}\n')
+
     def __str__(self):
         points = list(set(chain(
             *map(lambda x: x.points, self.tetrahedrons)
