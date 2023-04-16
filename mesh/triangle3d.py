@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from itertools import combinations
 
 from mesh.edge3d import Edge3D

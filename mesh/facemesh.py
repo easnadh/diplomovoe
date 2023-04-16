@@ -1,7 +1,4 @@
 from itertools import chain
-
-from exceptions.file_errors import FileExtensionError, FileStructureError
-from mesh.point3d import Point3D
 from mesh.triangle3d import Triangle3D
 
 
@@ -9,52 +6,10 @@ class FaceMesh:
     __slots__ = ('triangles',)
     triangles: list[Triangle3D]
 
-    @classmethod
-    def read_from_file(cls, path: str):
-        with open(path) as f:
-            lines = f.readlines()
-
-        if path.lower().endswith('.vol'):
-            try:
-                points_numbers, points = cls.from_vol(lines)
-
-                del lines
-
-                face_mesh = cls()
-                face_mesh.triangles = []
-                for n1, n2, n3 in points_numbers:
-                    face_mesh.triangles.append(
-                        Triangle3D(
-                            Point3D(*points[n1 - 1]),
-                            Point3D(*points[n2 - 1]),
-                            Point3D(*points[n3 - 1])
-                        )
-                    )
-                return face_mesh
-
-            except:
-                raise FileStructureError(path)
-
-        elif path.lower().endswith('.dat'):
-            pass
-        else:
-            raise FileExtensionError(path)
-
-    @staticmethod
-    def from_vol(lines):
-        points_numbers_start = lines.index('surfaceelements\n') + 1
-        points_numbers = [
-            tuple(map(int, i.split()[~2:])) for i in
-            lines[points_numbers_start + 1: points_numbers_start + int(lines[points_numbers_start]) + 1]
-        ]
-
-        points_start = lines.index('points\n') + 1
-        points = [
-            tuple(map(float, line.split())) for line in
-            lines[points_start + 1: points_start + int(lines[points_start]) + 1]
-        ]
-
-        return points_numbers, points
+    def __init__(self, triangles: list = None):
+        if triangles is None:
+            triangles = []
+        self.triangles = triangles
 
     def __str__(self):
         points = list(set(chain(
