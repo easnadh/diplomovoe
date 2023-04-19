@@ -1,9 +1,9 @@
 from itertools import chain
 
 from exceptions.file_errors import FileExtensionError, FileStructureError
+from mesh.facemesh import FaceMesh
 from mesh.point3d import Point3D
 from mesh.tetrahedron import Tetrahedron
-from mesh.facemesh import FaceMesh
 from mesh.triangle3d import Triangle3D
 
 
@@ -19,7 +19,6 @@ class TetMesh:
             tetrahedrons = []
         self.face_mesh = face_mesh
         self.tetrahedrons = tetrahedrons
-
 
     @classmethod
     def read_from_file(cls, path: str):
@@ -108,29 +107,14 @@ class TetMesh:
 
         return [], tetrahedron_points_numbers, points
 
-    def difference(self, other, path: str):
-        points1: set[Point3D] = set(chain(*map(lambda x: x.points, self.tetrahedrons)))
-        points2: set[Point3D] = set(chain(*map(lambda x: x.points, other.tetrahedrons)))
-
-        in_p1_and_not_in_p2 = points1 - points2
-        in_p2_and_not_in_p1 = points2 - points1
-
-        open(path, 'w').close()
-        with open(path, 'a') as file:
-            for p in in_p1_and_not_in_p2:
-                file.write(f'{p.x} {p.y} {p.z}\n')
-            file.write('\n')
-            for p in in_p2_and_not_in_p1:
-                file.write(f'{p.x} {p.y} {p.z}\n')
-
     def __str__(self):
         points = list(set(chain(
             *map(lambda x: x.points, self.tetrahedrons)
         )))
 
         tetrahedrons_with_numbers = [
-            list(map(lambda x: points.index(x) + 1, tetr.points))
-            for tetr in self.tetrahedrons
+            list(map(lambda x: points.index(x) + 1, tetrahedron.points))
+            for tetrahedron in self.tetrahedrons
         ]
         return (f'TetMesh(\n'
                 f'Уникальных точек: {len(points)}\n'
