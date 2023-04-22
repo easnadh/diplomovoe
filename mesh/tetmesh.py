@@ -1,141 +1,108 @@
-from itertools import chain
+from dataclasses import dataclass
 
-from exceptions.file_errors import FileExtensionError, FileStructureError
+from mesh.facemesh import FaceMesh
 from mesh.point3d import Point3D
 from mesh.tetrahedron import Tetrahedron
-from mesh.facemesh import FaceMesh
 from mesh.triangle3d import Triangle3D
 
 
+@dataclass(slots=True)
 class TetMesh:
-    __slots__ = ('tetrahedrons', 'face_mesh')
     face_mesh: FaceMesh
     tetrahedrons: list[Tetrahedron]
 
     # bound_tet: list[int]
 
-    def __init__(self, face_mesh: FaceMesh = None, tetrahedrons: list = None):
-        if tetrahedrons is None:
-            tetrahedrons = []
-        self.face_mesh = face_mesh
-        self.tetrahedrons = tetrahedrons
-
-
     @classmethod
     def read_from_file(cls, path: str):
-        with open(path) as f:
-            lines = f.readlines()
+        if path.endswith('.vol'):
+            with open(path) as file:
+                lines: list[str] = [x.rstrip() for x in file]
 
-        if path.lower().endswith('.vol'):
-            try:
-                triangle_points_numbers, tetrahedron_points_numbers, points = cls.from_vol(lines)
-            except:
-                raise FileStructureError(path)
-        elif path.lower().endswith('.dat'):
-            try:
-                triangle_points_numbers, tetrahedron_points_numbers, points = cls.from_dat(lines)
-            except:
-                raise FileStructureError(path)
-        else:
-            raise FileExtensionError(path)
+            points_start = lines.index('points') + 1
+            points = []
+            for point_element_row_index in range(points_start + 1, points_start + int(lines[points_start]) + 1):
+                points.append(Point3D(*map(float, lines[point_element_row_index].split())))
 
-        del lines
+            triangles: list[Triangle3D] = []
+            surface_start = lines.index('surfaceelements') + 1
+            for triangle_element_row_index in range(surface_start + 1,
+                                                    surface_start + int(lines[surface_start]) + 1):
+                surface_number, material_number, domin, domout, _, pn1, pn2, pn3 = map(int, lines[
+                    triangle_element_row_index].split())
 
-        tet_mesh = cls()
+                triangles.append(Triangle3D(
+                    [points[pn1 - 1], points[pn2 - 1], points[pn3 - 1]],
+                    surface_number,
+                    material_number,
+                    domin,
+                    domout
+                ))
 
-        if triangle_points_numbers:
-            face_mesh = FaceMesh()
-            for n1, n2, n3 in triangle_points_numbers:
-                face_mesh.triangles.append(
-                    Triangle3D(
-                        Point3D(*points[n1 - 1]),
-                        Point3D(*points[n2 - 1]),
-                        Point3D(*points[n3 - 1])
-                    )
-                )
-            tet_mesh.face_mesh = face_mesh
+            face_mesh = FaceMesh(triangles)
 
-        for n1, n2, n3, n4 in tetrahedron_points_numbers:
-            tet_mesh.tetrahedrons.append(
-                Tetrahedron(
-                    Point3D(*points[n1 - 1]),
-                    Point3D(*points[n2 - 1]),
-                    Point3D(*points[n3 - 1]),
-                    Point3D(*points[n4 - 1])
-                )
-            )
+            tetrahedrons: list[Tetrahedron] = []
+            volume_start = lines.index('volumeelements') + 1
+            for tetrahedron_element_row_index in range(volume_start + 1, volume_start + int(lines[volume_start]) + 1):
+                material_number, _, pn1, pn2, pn3, pn4 = list(map(int, lines[tetrahedron_element_row_index].split()))
+                tetrahedrons.append(Tetrahedron(
+                    [points[pn1 - 1], points[pn2 - 1], points[pn3 - 1], points[pn4 - 1]],
+                    material_number
+                ))
 
-        return tet_mesh
+            return cls(face_mesh, tetrahedrons)
 
-    @staticmethod
-    def from_vol(lines):
+    def write_mesh_to_file(self, file_name: str):
+        if file_name.endswith('.vol'):
+            points = set()
 
-        triangle_points_numbers_start = lines.index('surfaceelements\n') + 1
-        triangle_points_numbers = [
-            tuple(map(int, i.split()[~2:])) for i in
-            lines[triangle_points_numbers_start + 1: triangle_points_numbers_start + int(
-                lines[triangle_points_numbers_start]) + 1]
-        ]
+            if self.face_mesh:
+                for triangle in self.face_mesh.triangles:
+                    points.update({*triangle.points})
 
-        tetrahedron_points_numbers_start = lines.index('volumeelements\n') + 1
-        tetrahedron_points_numbers = [
-            tuple(map(int, i.split()[~3:])) for i in
-            lines[tetrahedron_points_numbers_start + 1: tetrahedron_points_numbers_start + int(
-                lines[tetrahedron_points_numbers_start]) + 1]
-        ]
+            if self.tetrahedrons:
+                for tetrahedron in self.tetrahedrons:
+                    points.update({*tetrahedron.points})
 
-        points_start = lines.index('points\n') + 1
-        points = [
-            tuple(map(float, line.split())) for line in
-            lines[points_start + 1: points_start + int(lines[points_start]) + 1]
-        ]
+            if not self.face_mesh and not self.tetrahedrons:
+                raise ValueError(f'Ошибка записи в файл. Обе сетки пусты.')
 
-        return triangle_points_numbers, tetrahedron_points_numbers, points
+            points = tuple(points)
 
-    @staticmethod
-    def from_dat(lines):
-        points_start = int(lines[0])
-        points = [
-            tuple(map(float, line.split())) for line in
-            lines[1: points_start + 1]
-        ]
+            open(file_name, 'w').close()
+            with open(file_name, 'a') as file:
 
-        tetrahedron_points_numbers_start = int(lines[points_start + 2])
-        tetrahedron_points_numbers = [
-            tuple(map(int, i.split())) for i in
-            lines[points_start + 3: points_start + 3 + tetrahedron_points_numbers_start]
-        ]
+                if self.face_mesh is not None:
+                    file.write('facemesh\n')
+                    for triangle in self.face_mesh.triangles:
+                        cur_points = triangle.points
+                        file.write(f'{triangle.surface_number} {triangle.material_number} {triangle.domin}'
+                                   f' {triangle.domout} 3 ' + ' '.join(map(lambda x: str(points.index(x) + 1),
+                                                                          cur_points)) + '\n')
 
-        return [], tetrahedron_points_numbers, points
+                if self.tetrahedrons:
+                    file.write('tetmesh\n')
+                    for tetrahedron in self.tetrahedrons:
+                        cur_points = tetrahedron.points
+                        file.write(f'{tetrahedron.material_number} 4 ' + ' '.join(map(lambda x: str(points.index(x) + 1), cur_points)) + '\n')
 
-    def difference(self, other, path: str):
-        points1: set[Point3D] = set(chain(*map(lambda x: x.points, self.tetrahedrons)))
-        points2: set[Point3D] = set(chain(*map(lambda x: x.points, other.tetrahedrons)))
+                file.write('points\n')
+                for point in points:
+                    file.write(f"{point.x} {point.y} {point.z}\n")
 
-        in_p1_and_not_in_p2 = points1 - points2
-        in_p2_and_not_in_p1 = points2 - points1
-
-        open(path, 'w').close()
-        with open(path, 'a') as file:
-            for p in in_p1_and_not_in_p2:
-                file.write(f'{p.x} {p.y} {p.z}\n')
-            file.write('\n')
-            for p in in_p2_and_not_in_p1:
-                file.write(f'{p.x} {p.y} {p.z}\n')
-
-    def __str__(self):
-        points = list(set(chain(
-            *map(lambda x: x.points, self.tetrahedrons)
-        )))
-
-        tetrahedrons_with_numbers = [
-            list(map(lambda x: points.index(x) + 1, tetr.points))
-            for tetr in self.tetrahedrons
-        ]
-        return (f'TetMesh(\n'
-                f'Уникальных точек: {len(points)}\n'
-                f'Точки:\n'
-                f'{chr(10).join(map(lambda x: f"{x[0]}. {x[1]}", enumerate(points, 1)))}\n'
-                f'Тетраэдры:\n' +
-                chr(10).join(map(lambda x: f"Тетраэдр ({', '.join(map(str, x))})", tetrahedrons_with_numbers)) +
-                f'\n)')
+    # def __str__(self):
+    #     points = list(set(chain(
+    #         *map(lambda x: x.points, self.tetrahedrons)
+    #     )))
+    #
+    #     tetrahedrons_with_numbers = [
+    #         list(map(lambda x: points.index(x) + 1, tetr.points))
+    #         for tetr in self.tetrahedrons
+    #     ]
+    #     return (f'TetMesh(\n'
+    #             f'Уникальных точек: {len(points)}\n'
+    #             f'Точки:\n'
+    #             f'{chr(10).join(map(lambda x: f"{x[0]}. {x[1]}", enumerate(points, 1)))}\n'
+    #             f'Тетраэдры:\n' +
+    #             chr(10).join(map(lambda x: f"Тетраэдр ({', '.join(map(str, x))})", tetrahedrons_with_numbers)) +
+    #             f'\n)')

@@ -1,18 +1,17 @@
+from dataclasses import dataclass
 from itertools import combinations
 
 from mesh.point3d import Point3D
 from mesh.triangle3d import Triangle3D
 
 
+@dataclass(slots=True)
 class Tetrahedron:
-    __slots__ = ('points',)
     points: list[Point3D]
-
-    def __init__(self, *points: Point3D):
-        self.points = list(points)
+    material_number: int = None
 
     def __repr__(self):
-        return f'Tetrahedron({", ".join(map(repr, self.points))})'
+        return f'Tetrahedron([{", ".join(map(repr, self.points))}], {self.material_number})'
 
     @classmethod
     def from_triangles(cls, *triangles: Triangle3D):

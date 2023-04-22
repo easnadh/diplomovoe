@@ -1,15 +1,12 @@
+from dataclasses import dataclass
 from itertools import chain
+
 from mesh.triangle3d import Triangle3D
 
 
+@dataclass(slots=True)
 class FaceMesh:
-    __slots__ = ('triangles',)
-    triangles: list[Triangle3D]
-
-    def __init__(self, triangles: list = None):
-        if triangles is None:
-            triangles = []
-        self.triangles = triangles
+    triangles: list[Triangle3D] = None
 
     def __str__(self):
         points = list(set(chain(

@@ -1,18 +1,20 @@
+from dataclasses import dataclass
 from itertools import combinations
 
 from mesh.edge3d import Edge3D
 from mesh.point3d import Point3D
 
 
+@dataclass(slots=True)
 class Triangle3D:
-    __slots__ = ('points',)
     points: list[Point3D]
-
-    def __init__(self, *points: Point3D):
-        self.points = list(points)
+    surface_number: int = None
+    material_number: int = None
+    domin: int = None
+    domout: int = None
 
     def __repr__(self):
-        return f'Triangle3D({", ".join(map(repr, self.points))})'
+        return f'Triangle3D([{", ".join(map(repr, self.points))}], {self.surface_number}, {self.material_number}, {self.domin}, {self.domout})'
 
     @classmethod
     def from_edges(cls, *edges: Edge3D):
