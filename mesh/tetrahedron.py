@@ -8,7 +8,7 @@ from mesh.triangle3d import Triangle3D
 @dataclass(slots=True)
 class Tetrahedron:
     points: list[Point3D]
-    material_number: int = None
+    material_number: int = 1
 
     def __repr__(self):
         return f'Tetrahedron([{", ".join(map(repr, self.points))}], {self.material_number})'

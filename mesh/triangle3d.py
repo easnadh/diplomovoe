@@ -8,10 +8,10 @@ from mesh.point3d import Point3D
 @dataclass(slots=True)
 class Triangle3D:
     points: list[Point3D]
-    surface_number: int = None
-    material_number: int = None
-    domin: int = None
-    domout: int = None
+    surface_number: int = 1
+    material_number: int = 1
+    domin: int = 1
+    domout: int = 0
 
     def __repr__(self):
         return f'Triangle3D([{", ".join(map(repr, self.points))}], {self.surface_number}, {self.material_number}, {self.domin}, {self.domout})'
