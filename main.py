@@ -1,11 +1,11 @@
 from mesh.tetmesh import TetMesh
-from utils.mesh_writer import write_mesh_to_file
+from utils.mesh_merger import merge_meshes
 
 
 def main():
-    file = 'cube.dat'
-    tetmesh = TetMesh.read_from_file(file)
-    write_mesh_to_file('dump.vol', tetmesh)
+    tetmesh = TetMesh.read_from_file('cube.vol')
+    tetmesh2 = TetMesh.read_from_file('cube2.vol')
+    merge_meshes('dump.vol', tetmesh, tetmesh2)
 
 
 if __name__ == '__main__':
