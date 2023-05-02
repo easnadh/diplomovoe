@@ -23,7 +23,7 @@ def merge_meshes(path: str, first_mesh: TetMesh, second_mesh: TetMesh):
             cur_points = triangle.points
             file.write(
                 f'{triangle.surface_number} {triangle.material_number} {triangle.domin} {triangle.domout} 3 ' + ' '.join(
-                    map(lambda x: str(tuple(points2).index(x) + 1 + (len(points2) - len(in_p2_and_not_in_p1))),
+                    map(lambda x: str(tuple(points2).index(x) + 1),
                         cur_points)) + '\n')
 
         file.write(f'\n#  matnr      np      p1      p2      p3      p4\n'
@@ -35,7 +35,7 @@ def merge_meshes(path: str, first_mesh: TetMesh, second_mesh: TetMesh):
         for tetrahedron in second_mesh.tetrahedrons:
             cur_points = tetrahedron.points
             file.write(f'{tetrahedron.material_number} 4 ' + ' '.join(
-                map(lambda x: str(tuple(points2).index(x) + 1 + (len(points2) - len(in_p2_and_not_in_p1))), cur_points)) + '\n')
+                map(lambda x: str(tuple(points2).index(x) + 1), cur_points)) + '\n')
 
         file.write(f'\n#          X             Y             Z\n'
                    f'points\n{len(points1) + len(in_p2_and_not_in_p1)}\n')
