@@ -1,43 +1,21 @@
 from itertools import chain
 
+from mesh.facemesh import FaceMesh
 from mesh.point3d import Point3D
 from mesh.tetmesh import TetMesh
 
 
-def merge_meshes(path: str, first_mesh: TetMesh, second_mesh: TetMesh):
+def merge_meshes(first_mesh: TetMesh, second_mesh: TetMesh):
+    first_points: set[Point3D] = set(chain(*map(lambda x: x.points, first_mesh.tetrahedrons)))
+    second_points: set[Point3D] = set(chain(*map(lambda x: x.points, second_mesh.tetrahedrons)))
 
-    points: set[Point3D] = set(chain(*map(lambda x: x.points, first_mesh.tetrahedrons))).union(
-        set(chain(*map(lambda x: x.points, second_mesh.tetrahedrons))))
+    points = first_points.union(second_points)
+    common_points = first_points.intersection(second_points)
 
-    open(path, 'w').close()
-    with open(path, 'a') as file:
+    if common_points:
+        all_facemesh_triangles = list(set(first_mesh.face_mesh.triangles + second_mesh.face_mesh.triangles))
+        facemesh = FaceMesh(all_facemesh_triangles)
+        all_tetmesh_tetrahedrons = list(set(first_mesh.tetrahedrons + second_mesh.tetrahedrons))
+        tetmesh = TetMesh(facemesh, all_tetmesh_tetrahedrons)
 
-        file.write('\n# surfnr    bcnr   domin  domout      np      p1      p2      p3\n'
-                   f'surfaceelements\n{len(first_mesh.face_mesh.triangles) + len(second_mesh.face_mesh.triangles)}\n')
-        for triangle in first_mesh.face_mesh.triangles:
-            cur_points = triangle.points
-            file.write(f'{triangle.surface_number} {triangle.material_number} {triangle.domin}'
-                       f' {triangle.domout} 3 ' + ' '.join(map(lambda x: str(tuple(points).index(x) + 1),
-                                                               cur_points)) + '\n')
-        for triangle in second_mesh.face_mesh.triangles:
-            cur_points = triangle.points
-            file.write(
-                f'{triangle.surface_number} {triangle.material_number} {triangle.domin} {triangle.domout} 3 ' + ' '.join(
-                    map(lambda x: str(tuple(points).index(x) + 1),
-                        cur_points)) + '\n')
-
-        file.write(f'\n#  matnr      np      p1      p2      p3      p4\n'
-                   f'volumeelements\n{len(first_mesh.tetrahedrons) + len(second_mesh.tetrahedrons)}\n')
-        for tetrahedron in first_mesh.tetrahedrons:
-            cur_points = tetrahedron.points
-            file.write(f'{tetrahedron.material_number} 4 ' + ' '.join(
-                map(lambda x: str(tuple(points).index(x) + 1), cur_points)) + '\n')
-        for tetrahedron in second_mesh.tetrahedrons:
-            cur_points = tetrahedron.points
-            file.write(f'{tetrahedron.material_number} 4 ' + ' '.join(
-                map(lambda x: str(tuple(points).index(x) + 1), cur_points)) + '\n')
-
-        file.write(f'\n#          X             Y             Z\n'
-                   f'points\n{len(points)}\n')
-        for p in points:
-            file.write(f'{p.x} {p.y} {p.z}\n')
+        return tetmesh
