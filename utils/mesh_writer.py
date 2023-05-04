@@ -1,7 +1,7 @@
 from mesh.tetmesh import TetMesh
 
 
-def convert_mesh(file_name: str, tet_mesh: TetMesh):
+def write_mesh_to_file(file_name: str, tet_mesh: TetMesh):
     points = set()
 
     if tet_mesh.face_mesh is not None:
