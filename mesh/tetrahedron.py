@@ -13,6 +13,9 @@ class Tetrahedron:
     def __repr__(self):
         return f'Tetrahedron([{", ".join(map(repr, self.points))}], {self.material_number})'
 
+    def __hash__(self):
+        return hash(repr(self))
+
     @classmethod
     def from_triangles(cls, *triangles: Triangle3D):
         points = set()

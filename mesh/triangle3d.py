@@ -16,6 +16,9 @@ class Triangle3D:
     def __repr__(self):
         return f'Triangle3D([{", ".join(map(repr, self.points))}], {self.surface_number}, {self.material_number}, {self.domin}, {self.domout})'
 
+    def __hash__(self):
+        return hash(repr(self))
+
     @classmethod
     def from_edges(cls, *edges: Edge3D):
         points = set()
