@@ -12,8 +12,6 @@ class TetMesh:
     face_mesh: FaceMesh
     tetrahedrons: list[Tetrahedron]
 
-    # bound_tet: list[int]
-
     @classmethod
     def read_from_file(cls, path: str):
         with open(path) as file:
