@@ -1,6 +1,7 @@
 from itertools import chain
 
 from exceptions.surface_errors import NonequivalentPlanesError, NonequivalentPointsCountError
+from mesh.facemesh import FaceMesh
 from mesh.point3d import Point3D
 from mesh.tetmesh import TetMesh
 from mesh.triangle3d import Triangle3D
@@ -8,9 +9,11 @@ from mesh.triangle3d import Triangle3D
 
 def merge_meshes(surface_number1: Triangle3D.surface_number, surface_number2: Triangle3D.surface_number,
                  first_mesh: TetMesh, second_mesh: TetMesh):
+    first_points: set[Point3D] = set(chain(*map(lambda x: x.points, first_mesh.tetrahedrons)))
+    second_points: set[Point3D] = set(chain(*map(lambda x: x.points, second_mesh.tetrahedrons)))
 
-    common_points: set[Point3D] = set(chain(*map(lambda x: x.points, first_mesh.tetrahedrons))).intersection(
-        set(chain(*map(lambda x: x.points, second_mesh.tetrahedrons))))
+    points = first_points.union(second_points)
+    common_points = first_points.intersection(second_points)
 
     # if common_points:
     #     all_facemesh_triangles = list(set(first_mesh.face_mesh.triangles + second_mesh.face_mesh.triangles))
@@ -31,6 +34,7 @@ def merge_meshes(surface_number1: Triangle3D.surface_number, surface_number2: Tr
             s_p1, s_p2, s_p3, *ps = triangle.points
             A2, B2, C2 = find_equation_plane(s_p1, s_p2, s_p3)
             count2 += 1
+
     if (A1, B1, C1) == (A2, B2, C2):
         if count1 == count2:
             ...
