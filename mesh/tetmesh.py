@@ -1,3 +1,4 @@
+from copy import copy
 from dataclasses import dataclass
 from itertools import chain
 
@@ -11,6 +12,27 @@ from utils.mesh_reader import from_dat, from_vol
 class TetMesh:
     face_mesh: FaceMesh
     tetrahedrons: list[Tetrahedron]
+
+    def __copy__(self):
+        new_face_mesh_triangles = copy(self.face_mesh.triangles)
+        new_tetrahedrons = copy(self.tetrahedrons)
+
+        all_new_points = list(set(*map(lambda x: (copy(i) for i in x.points), self.face_mesh.triangles)) &
+                              set(*map(lambda x: (copy(i) for i in x.points), self.tetrahedrons)))
+
+        for i in range(len(new_face_mesh_triangles)):
+            for j in range(3):
+                new_face_mesh_triangles[i].points[j] = all_new_points[all_new_points.index(
+                    new_face_mesh_triangles[i].points[j])]
+
+        for i in range(len(new_tetrahedrons)):
+            for j in range(4):
+                new_tetrahedrons[i].points[j] = all_new_points[all_new_points.index(
+                    new_tetrahedrons[i].points[j])]
+
+        face_mesh = FaceMesh(new_face_mesh_triangles)
+        tetmesh = TetMesh(face_mesh, new_tetrahedrons)
+        return tetmesh
 
     @classmethod
     def read_from_file(cls, path: str):

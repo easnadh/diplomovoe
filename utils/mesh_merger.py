@@ -1,3 +1,6 @@
+import math
+from copy import copy
+from functools import partial
 from itertools import chain
 
 from exceptions.surface_errors import NonequivalentPlanesError, NonequivalentPointsCountError
@@ -7,8 +10,8 @@ from mesh.tetmesh import TetMesh
 from mesh.triangle3d import Triangle3D
 
 
-def merge_meshes(surface_number1: Triangle3D.surface_number, surface_number2: Triangle3D.surface_number,
-                 first_mesh: TetMesh, second_mesh: TetMesh):
+def merge_meshes(surface_number1: int, surface_number2: int,
+                 first_mesh: TetMesh, second_mesh: TetMesh) -> TetMesh:
     first_points: set[Point3D] = set(chain(*map(lambda x: x.points, first_mesh.tetrahedrons)))
     second_points: set[Point3D] = set(chain(*map(lambda x: x.points, second_mesh.tetrahedrons)))
 
@@ -35,13 +38,45 @@ def merge_meshes(surface_number1: Triangle3D.surface_number, surface_number2: Tr
             A2, B2, C2 = find_equation_plane(s_p1, s_p2, s_p3)
             count2 += 1
 
-    if (A1, B1, C1) == (A2, B2, C2):
-        if count1 == count2:
-            ...
+    if count1 and count2:
+        if (A1, B1, C1) == (A2, B2, C2):
+            if count1 == count2:
+                ...
+            else:
+                raise NonequivalentPointsCountError(surface_number1, surface_number2)
         else:
-            raise NonequivalentPointsCountError(surface_number1, surface_number2)
-    else:
-        raise NonequivalentPlanesError(surface_number1, surface_number2)
+            raise NonequivalentPlanesError(surface_number1, surface_number2)
+
+
+def mean_merge(surface_number1: int, surface_number2: int, mesh1: TetMesh, mesh2: TetMesh) -> TetMesh:
+    mesh_copy = copy(mesh1)
+
+    face_points1 = list(chain(*map(lambda x: x.points,
+                                   filter(lambda x: x.surface_number == surface_number1, mesh_copy.face_mesh.triangles)
+                                   )))
+    face_points2 = list(chain(*map(lambda x: x.points,
+                                   filter(lambda x: x.surface_number == surface_number2, mesh2.face_mesh.triangles)
+                                   )))
+
+    for point in face_points1:
+        mn = min(face_points2, key=partial(dist, p1=point))
+        mean_x = (point.x + mn.x) * 0.5
+        mean_y = (point.y + mn.y) * 0.5
+        mean_z = (point.z + mn.z) * 0.5
+        point.x = mean_x
+        point.y = mean_y
+        point.z = mean_z
+
+    return mesh_copy
+
+
+
+
+
+
+def dist(p1: Point3D, p2: Point3D):
+    return math.hypot(p1.x - p2.x, p1.y - p2.y, p1.z - p2.z)
+
 
 
 def find_equation_plane(p1, p2, p3):
