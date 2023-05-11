@@ -17,8 +17,8 @@ class TetMesh:
         new_face_mesh_triangles = copy(self.face_mesh.triangles)
         new_tetrahedrons = copy(self.tetrahedrons)
 
-        all_new_points = list(set(*map(lambda x: (copy(i) for i in x.points), self.face_mesh.triangles)) &
-                              set(*map(lambda x: (copy(i) for i in x.points), self.tetrahedrons)))
+        all_new_points = list(set(chain(*map(lambda x: (copy(i) for i in x.points), self.face_mesh.triangles))) &
+                              set(chain(*map(lambda x: (copy(i) for i in x.points), self.tetrahedrons))))
 
         for i in range(len(new_face_mesh_triangles)):
             for j in range(3):

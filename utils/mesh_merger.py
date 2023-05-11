@@ -59,7 +59,7 @@ def mean_merge(surface_number1: int, surface_number2: int, mesh1: TetMesh, mesh2
                                    )))
 
     for point in face_points1:
-        mn = min(face_points2, key=partial(dist, p1=point))
+        mn = min(face_points2, key=partial(dist, point))
         mean_x = (point.x + mn.x) * 0.5
         mean_y = (point.y + mn.y) * 0.5
         mean_z = (point.z + mn.z) * 0.5
