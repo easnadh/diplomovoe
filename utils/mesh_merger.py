@@ -15,7 +15,7 @@ def merge_meshes(surface_number1: int, surface_number2: int,
     first_points: set[Point3D] = set(chain(*map(lambda x: x.points, first_mesh.face_mesh.triangles)))
     second_points: set[Point3D] = set(chain(*map(lambda x: x.points, second_mesh.face_mesh.triangles)))
 
-    if set(map(lambda x: x.surface_number == surface_number1, first_points)) == set(map(lambda x: x.surface_number == surface_number1, second_points)):
+    if set(filter(lambda x: x.surface_number == surface_number1, first_points)) == set(filter(lambda x: x.surface_number == surface_number1, second_points)):
         return mean_merge(surface_number1, surface_number2, first_mesh, second_mesh)
 
     # points = first_points.union(second_points)
