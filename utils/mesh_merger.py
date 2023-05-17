@@ -15,9 +15,12 @@ def merge_meshes(surface_number1: int, surface_number2: int,
     first_points: set[Point3D] = set(chain(*map(lambda x: x.points, first_mesh.tetrahedrons)))
     second_points: set[Point3D] = set(chain(*map(lambda x: x.points, second_mesh.tetrahedrons)))
 
-    points = first_points.union(second_points)
-    common_points = first_points.intersection(second_points)
+    if not first_points ^ second_points:
+        return mean_merge(surface_number1, surface_number2, first_mesh, second_mesh)
 
+    # points = first_points.union(second_points)
+    # common_points = first_points.intersection(second_points)
+    #
     # if common_points:
     #     all_facemesh_triangles = list(set(first_mesh.face_mesh.triangles + second_mesh.face_mesh.triangles))
     #     facemesh = FaceMesh(all_facemesh_triangles)
@@ -26,30 +29,31 @@ def merge_meshes(surface_number1: int, surface_number2: int,
     #
     #     return tetmesh
     # else:
-    count1, count2 = 0, 0
-    for triangle in first_mesh.face_mesh.triangles:
-        if triangle.surface_number == surface_number1:
-            f_p1, f_p2, f_p3, *ps = triangle.points
-            A1, B1, C1 = find_equation_plane(f_p1, f_p2, f_p3)
-            count1 += 1
-    for triangle in second_mesh.face_mesh.triangles:
-        if triangle.surface_number == surface_number2:
-            s_p1, s_p2, s_p3, *ps = triangle.points
-            A2, B2, C2 = find_equation_plane(s_p1, s_p2, s_p3)
-            count2 += 1
-
-    if count1 and count2:
-        if (A1, B1, C1) == (A2, B2, C2):
-            if count1 == count2:
-                ...
-            else:
-                raise NonequivalentPointsCountError(surface_number1, surface_number2)
-        else:
-            raise NonequivalentPlanesError(surface_number1, surface_number2)
+    # count1, count2 = 0, 0
+    # for triangle in first_mesh.face_mesh.triangles:
+    #     if triangle.surface_number == surface_number1:
+    #         f_p1, f_p2, f_p3, *ps = triangle.points
+    #         A1, B1, C1 = find_equation_plane(f_p1, f_p2, f_p3)
+    #         count1 += 1
+    # for triangle in second_mesh.face_mesh.triangles:
+    #     if triangle.surface_number == surface_number2:
+    #         s_p1, s_p2, s_p3, *ps = triangle.points
+    #         A2, B2, C2 = find_equation_plane(s_p1, s_p2, s_p3)
+    #         count2 += 1
+    #
+    # if count1 and count2:
+    #     if (A1, B1, C1) == (A2, B2, C2):
+    #         if count1 == count2:
+    #             ...
+    #         else:
+    #             raise NonequivalentPointsCountError(surface_number1, surface_number2)
+    #     else:
+    #         raise NonequivalentPlanesError(surface_number1, surface_number2)
 
 
 def mean_merge(surface_number1: int, surface_number2: int, mesh1: TetMesh, mesh2: TetMesh) -> TetMesh:
     mesh_copy = copy(mesh1)
+
 
     face_points1 = list(chain(*map(lambda x: x.points,
                                    filter(lambda x: x.surface_number == surface_number1, mesh_copy.face_mesh.triangles)
@@ -58,14 +62,19 @@ def mean_merge(surface_number1: int, surface_number2: int, mesh1: TetMesh, mesh2
                                    filter(lambda x: x.surface_number == surface_number2, mesh2.face_mesh.triangles)
                                    )))
 
+    print(*sorted(face_points1, key=lambda x: (x.x, x.y, x.z)), sep='\n', end='\n\n')
+    print(*sorted(face_points2, key=lambda x: (x.x, x.y, x.z)), sep='\n')
     for point in face_points1:
         mn = min(face_points2, key=partial(dist, point))
+        # print(point, mn);
         mean_x = (point.x + mn.x) * 0.5
         mean_y = (point.y + mn.y) * 0.5
         mean_z = (point.z + mn.z) * 0.5
         point.x = mean_x
         point.y = mean_y
         point.z = mean_z
+    mesh_copy.tetrahedrons.extend(mesh2.tetrahedrons)
+    mesh_copy.face_mesh.triangles.extend(mesh2.face_mesh.triangles)
 
     return mesh_copy
 
