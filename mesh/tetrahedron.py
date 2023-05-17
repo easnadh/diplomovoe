@@ -1,3 +1,4 @@
+from copy import copy
 from dataclasses import dataclass
 from itertools import combinations
 
@@ -15,6 +16,9 @@ class Tetrahedron:
 
     def __hash__(self):
         return hash(repr(self))
+
+    def __copy__(self):
+        return Tetrahedron([copy(point) for point in self.points], self.material_number)
 
     @classmethod
     def from_triangles(cls, *triangles: Triangle3D):
