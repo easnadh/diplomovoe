@@ -1,3 +1,4 @@
+from copy import copy
 from dataclasses import dataclass
 from itertools import combinations
 
@@ -32,3 +33,7 @@ class Triangle3D:
         for p1, p2 in combinations(self.points, 2):
             edges.append(Edge3D(p1, p2))
         return edges
+
+    def __copy__(self):
+        return Triangle3D([copy(point) for point in self.points], self.surface_number, self.material_number, self.domin,
+                          self.domout)
