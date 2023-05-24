@@ -1,3 +1,4 @@
+from exceptions.file_errors import FileExtensionError
 from mesh.tetmesh import TetMesh
 
 
@@ -17,14 +18,14 @@ def write_mesh_to_file(file_name: str, tet_mesh: TetMesh):
 
     points = tuple(points)
 
-    open(file_name, 'w').close()
-    with open(file_name, 'a') as file:
-
-        if file_name.endswith('.vol'):
+    if file_name.endswith('.vol'):
+        with open(file_name, 'a') as file:
             to_vol(file, tet_mesh, points)
-
-        if file_name.endswith('.dat'):
+    elif file_name.endswith('.dat'):
+        with open(file_name, 'a') as file:
             to_dat(file, tet_mesh, points)
+    else:
+        raise FileExtensionError(file_name)
 
 
 def to_vol(file, tet_mesh, points):
