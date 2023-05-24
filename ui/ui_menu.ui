@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+    <class>MainWindow</class>
+    <widget class="QMainWindow" name="MainWindow">
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>400</width>
+                <height>300</height>
+            </rect>
+        </property>
+        <property name="windowTitle">
+            <string>Mesh merger</string>
+        </property>
+        <property name="styleSheet">
+            <string notr="true"/>
+        </property>
+        <widget class="QWidget" name="mainWidget">
+            <property name="styleSheet">
+                <string notr="true"/>
+            </property>
+            <widget class="QPushButton" name="merge_meshes_button">
+                <property name="geometry">
+                    <rect>
+                        <x>100</x>
+                        <y>70</y>
+                        <width>200</width>
+                        <height>80</height>
+                    </rect>
+                </property>
+                <property name="styleSheet">
+                    <string notr="true">font-size: 20px;</string>
+                </property>
+                <property name="text">
+                    <string>Merge meshes</string>
+                </property>
+            </widget>
+            <widget class="QPushButton" name="convert_extension_button">
+                <property name="geometry">
+                    <rect>
+                        <x>100</x>
+                        <y>150</y>
+                        <width>200</width>
+                        <height>80</height>
+                    </rect>
+                </property>
+                <property name="styleSheet">
+                    <string notr="true">font-size: 20px;</string>
+                </property>
+                <property name="text">
+                    <string>Convert extension</string>
+                </property>
+            </widget>
+        </widget>
+    </widget>
+    <resources>
+        <include location="images/res.qrc"/>
+    </resources>
+    <connections/>
+</ui>
