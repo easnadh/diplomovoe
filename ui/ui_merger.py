@@ -1,4 +1,4 @@
-from PyQt6.QtGui import QIntValidator
+from PyQt6.QtGui import QIntValidator, QIcon
 from PyQt6.QtWidgets import QDialog, QFileDialog, QMessageBox
 from PyQt6.uic import loadUi
 
@@ -12,14 +12,15 @@ from utils.mesh_writer import write_mesh_to_file
 class UiMerge(QDialog):
     def __init__(self):
         super().__init__()
-        loadUi('ui/ui_merger.ui', self)
+        loadUi(r'C:\Users\first\PycharmProjects\diplomovoe\ui\ui_merger.ui', self)
         self.load_mesh1_file_button.clicked.connect(self.load_mesh1_file)
         self.load_mesh2_file_button.clicked.connect(self.load_mesh2_file)
-
         self.surface_number1_lineedit.setValidator(QIntValidator())
         self.surface_number2_lineedit.setValidator(QIntValidator())
 
         self.get_result_button.clicked.connect(self.get_result)
+        self.setWindowIcon(QIcon(r'C:\Users\first\PycharmProjects\diplomovoe\ui\mesh.ico'))
+
 
     def load_mesh1_file(self):
         file_name = QFileDialog.getOpenFileName(self, 'Open file', '*.vol')
