@@ -6,7 +6,7 @@ class NonequivalentPlanesError(Exception):
         super().__init__(self.message)
 
     def __str__(self):
-        return f'Плоскости {self.srf1} и {self.srf2} не совпадают. Укажите совпадающие'
+        return f'Плоскости {self.srf1} и {self.srf2} не совпадают\nУкажите совпадающие'
 
 
 class NonequivalentPointsCountError(Exception):
@@ -17,7 +17,7 @@ class NonequivalentPointsCountError(Exception):
         super().__init__(self.message)
 
     def __str__(self):
-        return f'Количество точек на плоскостях {self.srf1} и {self.srf2} не совпадает. Укажите корректные плоскости'
+        return f'Количество точек на плоскостях {self.srf1} и {self.srf2} не совпадает\nУкажите корректные плоскости'
 
 
 class SurfacesNotFoundError(Exception):
@@ -28,4 +28,4 @@ class SurfacesNotFoundError(Exception):
         super().__init__(self.message)
 
     def __str__(self):
-        return f'Одна или обе из указанных поверхностей ({self.srf1} и {self.srf2}) не обнаружены. Укажите существующие'
+        return f'Одна или обе из указанных поверхностей ({self.srf1} и {self.srf2}) не обнаружены\nУкажите существующие'

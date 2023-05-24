@@ -5,7 +5,7 @@ class FileExtensionError(Exception):
         super().__init__(self.message)
 
     def __str__(self):
-        return f'{self.message} {self.path}. Ожидается .vol или .dat'
+        return f'{self.message} {self.path}\nОжидается .vol или .dat'
 
 
 class FileStructureError(Exception):
@@ -15,4 +15,4 @@ class FileStructureError(Exception):
         super().__init__(self.message)
 
     def __str__(self):
-        return f'{self.message} {self.path}. Блоки данных не соответствуют ожидаемым'
+        return f'{self.message} {self.path}\nБлоки данных не соответствуют ожидаемым'

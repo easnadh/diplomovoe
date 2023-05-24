@@ -27,14 +27,10 @@ def merge_meshes(surface_number1: int, surface_number2: int, mesh1: TetMesh, mes
             return tetmesh
         else:
             if len(face_points1) == len(face_points2):
-                for triangle in mesh1.face_mesh.triangles:
-                    if triangle.surface_number == surface_number1:
-                        f_p1, f_p2, f_p3, *ps = triangle.points
-                        A1, B1, C1 = find_equation_plane(f_p1, f_p2, f_p3)
-                for triangle in mesh2.face_mesh.triangles:
-                    if triangle.surface_number == surface_number2:
-                        s_p1, s_p2, s_p3, *ps = triangle.points
-                        A2, B2, C2 = find_equation_plane(s_p1, s_p2, s_p3)
+                f_p1, f_p2, f_p3, *ps = face_points1
+                A1, B1, C1 = find_equation_plane(f_p1, f_p2, f_p3)
+                s_p1, s_p2, s_p3, *ps = face_points2
+                A2, B2, C2 = find_equation_plane(s_p1, s_p2, s_p3)
                 if (A1, B1, C1) == (A2, B2, C2):
                     return mid_merge(mesh1, mesh2, face_points1, face_points2)
                 else:
@@ -48,11 +44,8 @@ def merge_meshes(surface_number1: int, surface_number2: int, mesh1: TetMesh, mes
 def mid_merge(mesh1: TetMesh, mesh2: TetMesh, face_points1, face_points2) -> TetMesh:
     mesh_copy = copy(mesh1)
 
-    print(*sorted(face_points1, key=lambda x: (x.x, x.y, x.z)), sep='\n', end='\n\n')
-    print(*sorted(face_points2, key=lambda x: (x.x, x.y, x.z)), sep='\n')
-
     for point in face_points1:
-        mn = min(face_points2, key=partial(dist, point))
+        mn = min(face_points2, key=partial(find_points_distance, point))
         mean_x = (point.x + mn.x) * 0.5
         mean_y = (point.y + mn.y) * 0.5
         mean_z = (point.z + mn.z) * 0.5
@@ -65,7 +58,7 @@ def mid_merge(mesh1: TetMesh, mesh2: TetMesh, face_points1, face_points2) -> Tet
     return mesh_copy
 
 
-def dist(p1: Point3D, p2: Point3D):
+def find_points_distance(p1: Point3D, p2: Point3D):
     return math.hypot(p1.x - p2.x, p1.y - p2.y, p1.z - p2.z)
 
 
